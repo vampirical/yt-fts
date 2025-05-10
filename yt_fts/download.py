@@ -4,6 +4,7 @@ import sys
 import os
 import sqlite3
 import json
+import re
 import requests
 
 from pathlib import Path
@@ -176,19 +177,15 @@ class DownloadHandler:
 
         if res.status_code == 200:
             html = res.text
-            soup = BeautifulSoup(html, 'html.parser')
-            script = soup.find('script', type='application/ld+json')
 
-            try:
-                with self.console.status("[bold green]Parsing JSON...") as status:
-                    data = json.loads(script.string)
-            except:
-                print("json parse failed retrying with escaped backslashes")
-                script = script.string.replace('\\', '\\\\')
-                data = json.loads(script)
-
-            channel_name = data['itemListElement'][0]['item']['name']
-            return channel_name
+            match = re.search(r'"url": ?"\/?@([^"]+)"', html)
+            if match:
+                channel_name = match.group().split('/')[1]
+                return channel_name
+            else:
+                self.console.print("[red]Error:[/red] "
+                                   "couldn't get the channel name or channel doesn't exist")
+                sys.exit(1)
         else:
             self.console.print("[red]Error:[/red] "
                                "couldn't get the channel name or channel doesn't exist")
