@@ -314,7 +314,7 @@ class DownloadHandler:
                 stop_time = sub['stop_time']
                 text = sub['text']
                 cur.execute("""
-                            INSERT INTO Subtitles (video_id, start_time, stop_time, text) 
+                            INSERT INTO Subtitles (video_id, start_time, stop_time, text)
                             VALUES (?, ?, ?, ?)
                             """, (vid_id, start_time, stop_time, text))
 
